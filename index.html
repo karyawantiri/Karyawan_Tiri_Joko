@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Karyawan Tiri</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 font-sans antialiased text-slate-800">
+  <div class="flex h-screen overflow-hidden">
+    
+    <!-- Sidebar Kiri -->
+    <aside class="w-64 bg-slate-900 text-white flex flex-col shadow-xl flex-shrink-0">
+      <div class="p-5 flex items-center space-x-3 border-b border-slate-800">
+        <div class="bg-emerald-500 text-white p-2.5 rounded-xl font-bold text-lg shadow-md">
+          <i class="fa-solid fa-seedling"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-base tracking-wide">Karyawan Tiri</h1>
+          <p class="text-[11px] text-slate-400">Monitoring Pupuk Bersubsidi</p>
+        </div>
+      </div>
+      
+      <nav class="flex-1 p-4 space-y-1.5 overflow-y-auto">
+        <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-emerald-600 text-white transition font-medium shadow-sm">
+          <i class="fa-solid fa-chart-pie w-5"></i><span>Dashboard</span>
+        </button>
+        <button onclick="switchTab('realisasi')" id="nav-realisasi" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 transition font-medium">
+          <i class="fa-solid fa-file-invoice-dollar w-5"></i><span>Realisasi</span>
+        </button>
+        <button onclick="switchTab('alokasi')" id="nav-alokasi" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 transition font-medium">
+          <i class="fa-solid fa-boxes-stacked w-5"></i><span>Alokasi</span>
+        </button>
+        <button onclick="switchTab('f6')" id="nav-f6" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 transition font-medium">
+          <i class="fa-solid fa-table-cells w-5"></i><span>Laporan F6_2026</span>
+        </button>
+        <!-- Menu Verval baru tepat di bawah Laporan F6_2026 -->
+        <button onclick="openVervalApp()" id="nav-verval" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 transition font-medium">
+          <i class="fa-solid fa-check-to-slot w-5"></i><span>Verval</span>
+        </button>
+        <button onclick="switchTab('sawah')" id="nav-sawah" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 transition font-medium">
+          <i class="fa-solid fa-earth-asia w-5"></i><span>Luas Baku Sawah</span>
+        </button>
+      </nav>
+      
+      <div class="p-4 border-t border-slate-800 text-xs text-slate-500 text-center">
+        &copy; 2026 Karyawan Tiri Apps
+      </div>
+    </aside>
+    <!-- Konten Utama -->
+    <div class="flex-1 flex flex-col overflow-y-auto">
+      
+      <!-- Topbar -->
+      <header class="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-8 z-10 shadow-xs">
+        <h2 id="page-title" class="text-xl font-bold text-slate-800">Dashboard Penyaluran</h2>
+        <div class="flex items-center space-x-4">
+          <span id="loading-indicator" class="text-xs text-emerald-600 font-semibold bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200">
+            <i class="fa-solid fa-spinner fa-spin mr-1.5"></i>Memuat Data...
+          </span>
+          <div class="bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600">
+            <i class="fa-regular fa-calendar-days mr-1.5 text-emerald-600"></i> <span id="current-month">-</span>
+          </div>
+        </div>
+      </header>
+      <!-- Area Konten Tab -->
+      <main class="p-8 space-y-6">
+        <!-- DASHBOARD -->
+        <div id="content-dashboard" class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+            <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-200 flex items-center space-x-4">
+              <div class="bg-blue-50 text-blue-600 p-3.5 rounded-xl text-xl"><i class="fa-solid fa-truck-field"></i></div>
+              <div>
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Jumlah Distributor</p>
+                <h3 id="stat-distributor" class="text-2xl font-extrabold text-slate-800">0</h3>
+              </div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-200 flex items-center space-x-4">
+              <div class="bg-emerald-50 text-emerald-600 p-3.5 rounded-xl text-xl"><i class="fa-solid fa-store"></i></div>
+              <div>
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Jumlah Pengecer</p>
+                <h3 id="stat-pengecer" class="text-2xl font-extrabold text-slate-800">0</h3>
+              </div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-200 flex items-center space-x-4">
+              <div class="bg-amber-50 text-amber-600 p-3.5 rounded-xl text-xl"><i class="fa-solid fa-map-location-dot"></i></div>
+              <div>
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Jumlah Kecamatan</p>
+                <h3 id="stat-kecamatan" class="text-2xl font-extrabold text-slate-800">0</h3>
+              </div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-200 flex items-center space-x-4">
+              <div class="bg-purple-50 text-purple-600 p-3.5 rounded-xl text-xl"><i class="fa-solid fa-calendar-check"></i></div>
+              <div>
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Bulan Update Terakhir</p>
+                <h3 id="stat-bulan" class="text-base font-extrabold text-slate-800 truncate max-w-[140px]">-</h3>
+              </div>
+            </div>
+          </div>
+          <!-- Grafik Batang Serapan Pupuk per Kecamatan -->
+          <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-200">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3">
+              <div>
+                <h3 class="font-bold text-slate-800 text-base">Serapan Pupuk per Kecamatan</h3>
+                <p class="text-xs text-slate-500">Persentase total serapan semua produk (Total Realisasi / Total Alokasi)</p>
+              </div>
+              <select id="filter-produk" onchange="renderBarChart()" class="bg-slate-50 border border-slate-300 text-sm rounded-xl px-3.5 py-2 font-medium text-slate-700 outline-none">
+                <option value="all">Semua Produk (Total Keseluruhan)</option>
+                <option value="urea">Urea</option>
+                <option value="npk">NPK</option>
+                <option value="organik">Organik</option>
+                <option value="za">ZA</option>
+              </select>
+            </div>
+            <div class="relative w-full h-80">
+              <canvas id="barChartKecamatan"></canvas>
+            </div>
+          </div>
+          <!-- Tabel Realisasi Terendah -->
+          <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-200">
+            <h3 class="font-bold text-slate-800 text-base mb-1">Realisasi Terendah</h3>
+            <p class="text-xs text-slate-500 mb-4">5 Kecamatan dengan persentase realisasi terendah</p>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                  <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 text-xs uppercase tracking-wider font-semibold">
+                    <th class="p-3.5">Kecamatan</th>
+                    <th class="p-3.5">Alokasi</th>
+                    <th class="p-3.5">Realisasi</th>
+                    <th class="p-3.5">Sisa Alokasi</th>
+                    <th class="p-3.5">Persentase</th>
+                  </tr>
+                </thead>
+                <tbody id="table-lowest-realization">
+                  <tr><td colspan="5" class="p-4 text-center text-slate-400">Memuat data...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <!-- REALISASI -->
+        <div id="content-realisasi" class="space-y-6 hidden">
+          <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-200 space-y-4">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-100 pb-4">
+              <div>
+                <h3 class="font-bold text-slate-800 text-base">Data Alokasi & Realisasi Penyaluran</h3>
+                <p class="text-xs text-slate-500">Filter berdasarkan Kecamatan dan Jenis Pupuk</p>
+              </div>
+              <div class="flex flex-wrap items-center gap-3">
+                <select id="filter-kecamatan-realisasi" onchange="renderRealisasiTable()" class="bg-slate-50 border border-slate-300 text-sm rounded-xl px-3 py-2 font-medium text-slate-700 outline-none">
+                  <option value="all">Semua Kecamatan</option>
+                </select>
+                <select id="filter-pupuk-realisasi" onchange="renderRealisasiTable()" class="bg-slate-50 border border-slate-300 text-sm rounded-xl px-3 py-2 font-medium text-slate-700 outline-none">
+                  <option value="all">Semua Jenis Pupuk</option>
+                  <option value="urea">Urea</option>
+                  <option value="npk">NPK</option>
+                  <option value="organik">Organik</option>
+                  <option value="za">ZA</option>
+                </select>
+              </div>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                  <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 text-xs uppercase tracking-wider font-semibold">
+                    <th class="p-3.5">Distributor</th>
+                    <th class="p-3.5">Kecamatan</th>
+                    <th class="p-3.5">Jenis Pupuk</th>
+                    <th class="p-3.5">RDKK</th>
+                    <th class="p-3.5">Alokasi</th>
+                    <th class="p-3.5">Realisasi</th>
+                    <th class="p-3.5">Sisa</th>
+                  </tr>
+                </thead>
+                <tbody id="table-realisasi-all">
+                  <tr><td colspan="7" class="p-4 text-center text-slate-400">Memuat data...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <!-- ALOKASI -->
+        <div id="content-alokasi" class="space-y-6 hidden">
+          <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-200 space-y-4">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-100 pb-4">
+              <div>
+                <h3 class="font-bold text-slate-800 text-base">Data Alokasi Pupuk (Alokasi_2026_1)</h3>
+                <p class="text-xs text-slate-500">Filter berdasarkan Kecamatan dan Distributor</p>
+              </div>
+              <div class="flex flex-wrap items-center gap-3">
+                <select id="filter-kecamatan-alokasi" onchange="renderAlokasiTable()" class="bg-slate-50 border border-slate-300 text-sm rounded-xl px-3 py-2 font-medium text-slate-700 outline-none">
+                  <option value="all">Semua Kecamatan</option>
+                </select>
+                <select id="filter-distributor-alokasi" onchange="renderAlokasiTable()" class="bg-slate-50 border border-slate-300 text-sm rounded-xl px-3 py-2 font-medium text-slate-700 outline-none">
+                  <option value="all">Semua Distributor</option>
+                </select>
+              </div>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                  <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 text-xs uppercase tracking-wider font-semibold" id="alokasi-header"></tr>
+                </thead>
+                <tbody id="table-alokasi">
+                  <tr><td class="p-4 text-center text-slate-400">Memuat data...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <!-- LAPORAN F6_2026 -->
+        <div id="content-f6" class="space-y-6 hidden">
+          <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-200 space-y-4">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-100 pb-4">
+              <div>
+                <h3 class="font-bold text-slate-800 text-base">Laporan F6_2026 (Ringkasan per Kios)</h3>
+                <p class="text-xs text-slate-500">Kios ganda disatukan, menjumlahkan Stock Awal (R), Penebusan (S), Penyaluran (T), dan Stock Akhir (U)</p>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <select id="f6-filter-produk" onchange="renderF6Table()" class="bg-slate-50 border border-slate-300 text-xs rounded-xl px-3 py-2 font-medium text-slate-700 outline-none">
+                  <option value="all">Semua Produk</option>
+                  <option value="urea">Urea</option>
+                  <option value="npk">NPK</option>
+                  <option value="organik">Organik</option>
+                  <option value="za">ZA</option>
+                </select>
+                <select id="f6-filter-bulan" onchange="renderF6Table()" class="bg-slate-50 border border-slate-300 text-xs rounded-xl px-3 py-2 font-medium text-slate-700 outline-none">
+                  <option value="all">Semua Bulan</option>
+                </select>
+                <select id="f6-filter-kecamatan" onchange="renderF6Table()" class="bg-slate-50 border border-slate-300 text-xs rounded-xl px-3 py-2 font-medium text-slate-700 outline-none">
+                  <option value="all">Semua Kecamatan</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                  <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 text-xs uppercase tracking-wider font-semibold">
+                    <th class="p-3.5">Kecamatan</th>
+                    <th class="p-3.5">Kode Kios</th>
+                    <th class="p-3.5">Nama Kios</th>
+                    <th class="p-3.5 text-right">Stock Awal</th>
+                    <th class="p-3.5 text-right">Penebusan</th>
+                    <th class="p-3.5 text-right">Penyaluran</th>
+                    <th class="p-3.5 text-right">Stock Akhir</th>
+                  </tr>
+                </thead>
+                <tbody id="table-f6-body">
+                  <tr><td colspan="7" class="p-4 text-center text-slate-400">Memuat data...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <!-- LUAS BAKU SAWAH -->
+        <div id="content-sawah" class="space-y-6 hidden">
+          <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-200">
+            <h3 class="font-bold text-slate-800 text-base mb-4">Tabel Luas Baku Sawah</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                  <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 text-xs uppercase tracking-wider font-semibold" id="sawah-header"></tr>
+                </thead>
+                <tbody id="table-sawah">
+                  <tr><td class="p-4 text-center text-slate-400">Memuat data...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+  <!-- Script Logika Frontend -->
+  <script>
+    let globalData = {};
+    let barKecChart;
+    
+    // Fungsi untuk membuka aplikasi lokal / ngrok saat menu Verval diklik
+    function openVervalApp() {
+      window.open('https://refinish-tucking-unbraided.ngrok-free.dev', '_blank');
+    }
+
+    function switchTab(tabId) {
+      ['dashboard', 'realisasi', 'alokasi', 'f6', 'sawah'].forEach(t => {
+        document.getElementById(`content-${t}`).classList.add('hidden');
+        document.getElementById(`nav-${t}`).className = "w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 transition font-medium";
+      });
+      document.getElementById(`content-${tabId}`).classList.remove('hidden');
+      document.getElementById(`nav-${tabId}`).className = "w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-emerald-600 text-white transition font-medium shadow-sm";
+      
+      const titles = {
+        'dashboard': 'Dashboard Penyaluran',
+        'realisasi': 'Data Realisasi Penyaluran',
+        'alokasi': 'Data Alokasi Pupuk',
+        'f6': 'Data Laporan F6_2026',
+        'sawah': 'Luas Baku Sawah'
+      };
+      document.getElementById('page-title').innerText = titles[tabId];
+    }
+
+    window.onload = function() {
+      google.script.run
+        .withSuccessHandler(function(data) {
+          document.getElementById('loading-indicator').classList.add('hidden');
+          if(data.error) {
+            alert("Error dari Server: " + data.error);
+            return;
+          }
+          globalData = data;
+          processDashboard();
+          initRealisasiFilters();
+          initAlokasiFilters();
+          initF6Filters();
+          processSawah();
+        })
+        .withFailureHandler(function(err) {
+          document.getElementById('loading-indicator').innerText = "Gagal memuat data!";
+          console.error(err);
+        })
+        .getAllData();
+    };
+
+    function processDashboard() {
+      const stats = globalData.stats || {};
+      const ar = globalData.alokasiRealisasi || [];
+      document.getElementById('stat-distributor').innerText = stats.distributorCount || 0;
+      document.getElementById('stat-pengecer').innerText = stats.pengecerCount || 0;
+      document.getElementById('stat-kecamatan').innerText = stats.kecamatanCount || 0;
+      document.getElementById('stat-bulan').innerText = stats.latestMonth || '-';
+      document.getElementById('current-month').innerText = stats.latestMonth || '-';
+      if(ar.length > 1) {
+        let kecMap = {};
+        for(let i = 1; i < ar.length; i++) {
+          if(ar[i][2]) {
+            let kec = String(ar[i][2]).trim();
+            let alokasi = parseFloat(ar[i][5]) || 0;   
+            let realisasi = parseFloat(ar[i][10]) || 0; 
+            let sisa = parseFloat(ar[i][11]) || 0;      
+            
+            if(!kecMap[kec]) {
+              kecMap[kec] = { totalAlokasi: 0, totalRealisasi: 0, totalSisa: 0 };
+            }
+            kecMap[kec].totalAlokasi += alokasi;
+            kecMap[kec].totalRealisasi += realisasi;
+            kecMap[kec].totalSisa += sisa;
+          }
+        }
+        let rows = [];
+        for (let kec in kecMap) {
+          let totAlo = kecMap[kec].totalAlokasi;
+          let totRel = kecMap[kec].totalRealisasi;
+          let persenTot = totAlo > 0 ? (totRel / totAlo) * 100 : 0;
+          
+          rows.push({
+            kecamatan: kec,
+            alokasi: totAlo,
+            realisasi: totRel,
+            sisa: kecMap[kec].totalSisa,
+            persen: persenTot.toFixed(1)
+          });
+        }
+        rows.sort((a, b) => parseFloat(a.persen) - parseFloat(b.persen));
+        let lowest5 = rows.slice(0, 5);
+        let html = '';
+        lowest5.forEach(r => {
+          html += `<tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+            <td class="p-3.5 font-semibold text-slate-800">${r.kecamatan}</td>
+            <td class="p-3.5">${r.alokasi.toLocaleString()}</td>
+            <td class="p-3.5">${r.realisasi.toLocaleString()}</td>
+            <td class="p-3.5">${r.sisa.toLocaleString()}</td>
+            <td class="p-3.5"><span class="bg-red-50 text-red-600 px-3 py-1 rounded-full text-xs font-bold border border-red-200">${r.persen}%</span></td>
+          </tr>`;
+        });
+        document.getElementById('table-lowest-realization').innerHTML = html || '<tr><td colspan="5" class="p-4 text-center">Tidak ada data</td></tr>';
+      }
+      renderBarChart();
+    }
+
+    function renderBarChart() {
+      const ar = globalData.alokasiRealisasi || [];
+      const selectedProduk = document.getElementById('filter-produk').value.toLowerCase();
+      
+      let kecamatanMap = {};
+      if (ar.length > 1) {
+        for (let i = 1; i < ar.length; i++) {
+          let kecamatan = ar[i][2] ? String(ar[i][2]).trim() : "";    
+          let jenisProduk = ar[i][3] ? String(ar[i][3]).trim() : "";  
+          let alokasi = parseFloat(ar[i][5]) || 0;                    
+          let realisasi = parseFloat(ar[i][10]) || 0;                 
+          let persenKolomM = parseFloat(ar[i][12]) || 0;              
+          
+          if (kecamatan !== "") {
+            let matchProduk = true;
+            if (selectedProduk !== 'all') {
+              matchProduk = jenisProduk.toLowerCase().includes(selectedProduk);
+            }
+            if (matchProduk) {
+              if (!kecamatanMap[kecamatan]) {
+                kecamatanMap[kecamatan] = { sumAlokasi: 0, sumRealisasi: 0, rawPersenSum: 0, count: 0 };
+              }
+              kecamatanMap[kecamatan].sumAlokasi += alokasi;
+              kecamatanMap[kecamatan].sumRealisasi += realisasi;
+              let pVal = persenKolomM <= 1 ? persenKolomM * 100 : persenKolomM;
+              kecamatanMap[kecamatan].rawPersenSum += pVal;
+              kecamatanMap[kecamatan].count += 1;
+            }
+          }
+        }
+      }
+      let labels = Object.keys(kecamatanMap);
+      let dataValues = labels.map(kec => {
+        let item = kecamatanMap[kec];
+        let finalVal = 0;
+        
+        if (selectedProduk === 'all') {
+          if (item.sumAlokasi > 0) {
+            finalVal = (item.sumRealisasi / item.sumAlokasi) * 100;
+          }
+        } else {
+          finalVal = item.count > 0 ? item.rawPersenSum / item.count : 0;
+        }
+        return parseFloat(finalVal.toFixed(1));
+      });
+      const ctx = document.getElementById('barChartKecamatan').getContext('2d');
+      if(barKecChart) barKecChart.destroy();
+      barKecChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Persentase Realisasi (%)',
+            data: dataValues,
+            backgroundColor: '#10b981',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { ticks: { font: { size: 10 } }, grid: { display: false } },
+            y: { 
+              beginAtZero: true, 
+              max: 100,
+              ticks: { callback: function(value) { return value + '%'; } }
+            }
+          },
+          plugins: {
+            tooltip: {
+              callbacks: { label: function(context) { return context.dataset.label + ': ' + context.parsed.y + '%'; } }
+            }
+          }
+        }
+      });
+    }
+
+    function initRealisasiFilters() {
+      const ar = globalData.alokasiRealisasi || [];
+      let kecamatanSet = new Set();
+      if (ar.length > 1) {
+        for (let i = 1; i < ar.length; i++) {
+          let kec = ar[i][2]; 
+          if (kec && String(kec).trim() !== "") kecamatanSet.add(String(kec).trim());
+        }
+      }
+      let selectKec = document.getElementById('filter-kecamatan-realisasi');
+      kecamatanSet.forEach(k => {
+        let opt = document.createElement('option'); opt.value = k; opt.innerText = k; selectKec.appendChild(opt);
+      });
+      renderRealisasiTable();
+    }
+
+    function renderRealisasiTable() {
+      const ar = globalData.alokasiRealisasi || [];
+      const selectedKec = document.getElementById('filter-kecamatan-realisasi').value;
+      const selectedPupuk = document.getElementById('filter-pupuk-realisasi').value.toLowerCase();
+      
+      if(ar.length > 1) {
+        let html = ''; let count = 0;
+        for(let i = 1; i < ar.length; i++) {
+          let distributor = ar[i][0] || '-';
+          let kecamatan = ar[i][2] ? String(ar[i][2]).trim() : '';
+          let jenisPupuk = ar[i][3] ? String(ar[i][3]).trim() : '';
+          let rdkk = ar[i][4] || '-';
+          let alokasi = ar[i][5] || '-';
+          let realisasi = ar[i][10] || '-';
+          let sisa = ar[i][11] || '-';
+          let matchKec = (selectedKec === 'all' || kecamatan === selectedKec);
+          let matchPupuk = (selectedPupuk === 'all' || jenisPupuk.toLowerCase().includes(selectedPupuk));
+          if (matchKec && matchPupuk) {
+            count++;
+            if (count <= 200) {
+              html += `<tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+                <td class="p-3.5 font-medium text-slate-800">${distributor}</td>
+                <td class="p-3.5 font-semibold text-slate-800">${kecamatan}</td>
+                <td class="p-3.5"><span class="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md text-xs font-semibold">${jenisPupuk}</span></td>
+                <td class="p-3.5">${rdkk}</td>
+                <td class="p-3.5">${alokasi}</td>
+                <td class="p-3.5 text-emerald-600 font-medium">${realisasi}</td>
+                <td class="p-3.5">${sisa}</td>
+              </tr>`;
+            }
+          }
+        }
+        document.getElementById('table-realisasi-all').innerHTML = html || '<tr><td colspan="7" class="p-4 text-center text-slate-400">Tidak ada data</td></tr>';
+      }
+    }
+
+    function initAlokasiFilters() {
+      const alokasi = globalData.alokasiMain || [];
+      if (alokasi.length > 1) {
+        let headerHtml = '';
+        alokasi[0].forEach(h => { headerHtml += `<th class="p-3.5">${h}</th>`; });
+        document.getElementById('alokasi-header').innerHTML = headerHtml;
+        let headers = alokasi[0].map(h => String(h).toLowerCase().trim());
+        let idxKec = headers.findIndex(h => h.includes('kecamatan') || h.includes('kec'));
+        let idxDist = headers.findIndex(h => h.includes('distributor') || h.includes('penyalur'));
+        let kecamatanSet = new Set(); let distributorSet = new Set();
+        for (let i = 1; i < alokasi.length; i++) {
+          if (idxKec !== -1 && alokasi[i][idxKec]) kecamatanSet.add(String(alokasi[i][idxKec]).trim());
+          if (idxDist !== -1 && alokasi[i][idxDist]) distributorSet.add(String(alokasi[i][idxDist]).trim());
+        }
+        let selectKec = document.getElementById('filter-kecamatan-alokasi');
+        kecamatanSet.forEach(k => { let opt = document.createElement('option'); opt.value = k; opt.innerText = k; selectKec.appendChild(opt); });
+        let selectDist = document.getElementById('filter-distributor-alokasi');
+        distributorSet.forEach(d => { let opt = document.createElement('option'); opt.value = d; opt.innerText = d; selectDist.appendChild(opt); });
+      }
+      renderAlokasiTable();
+    }
+
+    function renderAlokasiTable() {
+      const alokasi = globalData.alokasiMain || [];
+      const selectedKec = document.getElementById('filter-kecamatan-alokasi').value;
+      const selectedDist = document.getElementById('filter-distributor-alokasi').value;
+      if (alokasi.length > 1) {
+        let headers = alokasi[0].map(h => String(h).toLowerCase().trim());
+        let idxKec = headers.findIndex(h => h.includes('kecamatan') || h.includes('kec'));
+        let idxDist = headers.findIndex(h => h.includes('distributor') || h.includes('penyalur'));
+        let bodyHtml = ''; let count = 0;
+        for (let i = 1; i < alokasi.length; i++) {
+          let row = alokasi[i];
+          let valKec = idxKec !== -1 ? String(row[idxKec]).trim() : '';
+          let valDist = idxDist !== -1 ? String(row[idxDist]).trim() : '';
+          let matchKec = (selectedKec === 'all' || valKec === selectedKec);
+          let matchDist = (selectedDist === 'all' || valDist === selectedDist);
+          if (matchKec && matchDist) {
+            count++;
+            if (count <= 250) {
+              bodyHtml += `<tr class="border-b border-slate-100 hover:bg-slate-50 transition">`;
+              row.forEach(cell => { bodyHtml += `<td class="p-3.5">${cell !== undefined ? cell : ''}</td>`; });
+              bodyHtml += `</tr>`;
+            }
+          }
+        }
+        document.getElementById('table-alokasi').innerHTML = bodyHtml || '<tr><td class="p-4 text-center text-slate-400">Tidak ada data</td></tr>';
+      }
+    }
+
+    function initF6Filters() {
+      const f6 = globalData.f6 || [];
+      if (f6.length > 1) {
+        let bulanSet = new Set();
+        let kecamatanSet = new Set();
+        for (let i = 1; i < f6.length; i++) {
+          let row = f6[i];
+          if (row[10]) kecamatanSet.add(String(row[10]).trim()); 
+          if (row[12]) bulanSet.add(String(row[12]).trim());    
+        }
+        let selectBulan = document.getElementById('f6-filter-bulan');
+        bulanSet.forEach(b => { let opt = document.createElement('option'); opt.value = b; opt.innerText = b; selectBulan.appendChild(opt); });
+        let selectKec = document.getElementById('f6-filter-kecamatan');
+        kecamatanSet.forEach(k => { let opt = document.createElement('option'); opt.value = k; opt.innerText = k; selectKec.appendChild(opt); });
+      }
+      renderF6Table();
+    }
+
+    function renderF6Table() {
+      const f6 = globalData.f6 || [];
+      const selProduk = document.getElementById('f6-filter-produk').value.toLowerCase();
+      const selBulan = document.getElementById('f6-filter-bulan').value.toLowerCase();
+      const selKec = document.getElementById('f6-filter-kecamatan').value;
+      if (f6.length > 1) {
+        let kioskMap = {};
+        let parseNumericValue = (val) => {
+          if (val === undefined || val === null || val === "") return 0;
+          if (typeof val === 'number') return val;
+          let str = String(val).trim();
+          let cleanStr = str.replace(/\./g, '').replace(/,/g, '.');
+          let num = parseFloat(cleanStr);
+          return isNaN(num) ? 0 : num;
+        };
+        for (let i = 1; i < f6.length; i++) {
+          let row = f6[i];
+          let kecamatan   = row[10] ? String(row[10]).trim() : '-';  
+          let kodeKios    = row[14] ? String(row[14]).trim() : '-';  
+          let namaKios    = row[15] ? String(row[15]).trim() : '-';  
+          let bulan       = row[12] ? String(row[12]).trim().toLowerCase() : ''; 
+          let jenisProduk = row[16] ? String(row[16]).trim().toLowerCase() : ''; 
+          
+          let valStokAwal   = parseNumericValue(row[17]);
+          let valPenebusan  = parseNumericValue(row[18]);
+          let valPenyaluran = parseNumericValue(row[19]);
+          let valStokAkhir  = parseNumericValue(row[20]);
+          let matchKec = (selKec === 'all' || kecamatan === selKec);
+          let matchBulan = (selBulan === 'all' || bulan === selBulan);
+          let matchProduk = (selProduk === 'all' || jenisProduk.includes(selProduk));
+          if (matchKec && matchBulan && matchProduk) {
+            let uniqueKey = kecamatan + '||' + kodeKios;
+            if (!kioskMap[uniqueKey]) {
+              kioskMap[uniqueKey] = {
+                kecamatan: kecamatan,
+                kodeKios: kodeKios,
+                namaKios: namaKios,
+                sumStokAwal: 0,
+                sumPenebusan: 0,
+                sumPenyaluran: 0,
+                sumStokAkhir: 0
+              };
+            }
+            kioskMap[uniqueKey].sumStokAwal += valStokAwal;
+            kioskMap[uniqueKey].sumPenebusan += valPenebusan;
+            kioskMap[uniqueKey].sumPenyaluran += valPenyaluran;
+            kioskMap[uniqueKey].sumStokAkhir += valStokAkhir;
+          }
+        }
+        let bodyHtml = '';
+        let count = 0;
+        for (let key in kioskMap) {
+          let item = kioskMap[key];
+          count++;
+          if (count <= 300) {
+            let dispStokAwal   = item.sumStokAwal === 0 ? "0" : item.sumStokAwal.toLocaleString('id-ID');
+            let dispPenebusan  = item.sumPenebusan === 0 ? "0" : item.sumPenebusan.toLocaleString('id-ID');
+            let dispPenyaluran = item.sumPenyaluran === 0 ? "0" : item.sumPenyaluran.toLocaleString('id-ID');
+            let dispStokAkhir  = item.sumStokAkhir === 0 ? "0" : item.sumStokAkhir.toLocaleString('id-ID');
+            bodyHtml += `<tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+              <td class="p-3.5 text-slate-700 font-medium">${item.kecamatan}</td>
+              <td class="p-3.5 text-slate-600 font-mono text-xs">${item.kodeKios}</td>
+              <td class="p-3.5 font-semibold text-slate-800">${item.namaKios}</td>
+              <td class="p-3.5 text-right text-slate-600">${dispStokAwal}</td>
+              <td class="p-3.5 text-right text-blue-600 font-medium">${dispPenebusan}</td>
+              <td class="p-3.5 text-right text-amber-600 font-medium">${dispPenyaluran}</td>
+              <td class="p-3.5 text-right text-emerald-600 font-bold">${dispStokAkhir}</td>
+            </tr>`;
+          }
+        }
+        if (bodyHtml === '') {
+          bodyHtml = `<tr><td colspan="7" class="p-4 text-center text-slate-400">Tidak ada data yang sesuai dengan filter</td></tr>`;
+        }
+        document.getElementById('table-f6-body').innerHTML = bodyHtml;
+      }
+    }
+
+    function processSawah() {
+      const sawah = globalData.sawah || [];
+      if(sawah.length > 0) {
+        let headerHtml = '';
+        sawah[0].forEach(h => { headerHtml += `<th class="p-3.5">${h}</th>`; });
+        document.getElementById('sawah-header').innerHTML = headerHtml;
+        let bodyHtml = '';
+        for(let i = 1; i < Math.min(sawah.length, 250); i++) {
+          bodyHtml += `<tr class="border-b border-slate-100 hover:bg-slate-50 transition">`;
+          sawah[i].forEach(cell => { bodyHtml += `<td class="p-3.5">${cell !== undefined ? cell : ''}</td>`; });
+          bodyHtml += `</tr>`;
+        }
+        document.getElementById('table-sawah').innerHTML = bodyHtml;
+      }
+    }
+  </script>
+</body>
+</html>
